@@ -1,0 +1,55 @@
+{
+  "_comment": "Two variants. Pick one, populate <placeholders>, send via: gh api -X PUT repos/{owner}/{repo}/branches/{branch}/protection --input <file>",
+
+  "standard": {
+    "required_status_checks": {
+      "strict": true,
+      "contexts": ["<job-name-1>", "<job-name-2>"]
+    },
+    "enforce_admins": true,
+    "required_pull_request_reviews": {
+      "dismiss_stale_reviews": true,
+      "require_code_owner_reviews": false,
+      "required_approving_review_count": 1,
+      "require_last_push_approval": false
+    },
+    "restrictions": null,
+    "required_linear_history": false,
+    "allow_force_pushes": { "enabled": false },
+    "allow_deletions": { "enabled": false },
+    "required_conversation_resolution": true,
+    "lock_branch": false,
+    "allow_fork_syncing": false
+  },
+
+  "solo_author": {
+    "_note": "For repos with one active committer. Requires PR + CI but skips approving-review requirement (you can't approve your own PR).",
+    "required_status_checks": {
+      "strict": true,
+      "contexts": ["<job-name-1>"]
+    },
+    "enforce_admins": true,
+    "required_pull_request_reviews": null,
+    "restrictions": null,
+    "required_linear_history": false,
+    "allow_force_pushes": { "enabled": false },
+    "allow_deletions": { "enabled": false },
+    "required_conversation_resolution": true,
+    "lock_branch": false,
+    "allow_fork_syncing": false
+  },
+
+  "minimal_no_ci_yet": {
+    "_note": "Use when no workflow exists on the default branch yet. Requires PR, no status checks. Re-run skill after CI lands to add contexts.",
+    "required_status_checks": null,
+    "enforce_admins": true,
+    "required_pull_request_reviews": null,
+    "restrictions": null,
+    "required_linear_history": false,
+    "allow_force_pushes": { "enabled": false },
+    "allow_deletions": { "enabled": false },
+    "required_conversation_resolution": true,
+    "lock_branch": false,
+    "allow_fork_syncing": false
+  }
+}

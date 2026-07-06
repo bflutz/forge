@@ -1,0 +1,80 @@
+# Template: .github/workflows/pr-checks.yml
+#
+# Placeholders:
+#   {{DEFAULT_BRANCH}}     -- master or main
+#   {{NODE_VERSION}}       -- e.g. 20
+#   {{PKG_MANAGER}}        -- npm or pnpm
+#   {{INSTALL_CMD}}        -- "npm ci" or "pnpm install --frozen-lockfile"
+#
+# Omit the `rules-test` job for non-Firebase projects.
+
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [{{DEFAULT_BRANCH}}]
+  push:
+    branches: [{{DEFAULT_BRANCH}}]
+
+concurrency:
+  group: pr-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: {{NODE_VERSION}}
+          cache: {{PKG_MANAGER}}
+      - run: {{INSTALL_CMD}}
+      - run: {{PKG_MANAGER}} run lint
+
+  typecheck:
+    name: typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: {{NODE_VERSION}}
+          cache: {{PKG_MANAGER}}
+      - run: {{INSTALL_CMD}}
+      - run: {{PKG_MANAGER}} run typecheck
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: {{NODE_VERSION}}
+          cache: {{PKG_MANAGER}}
+      - run: {{INSTALL_CMD}}
+      - run: {{PKG_MANAGER}} test
+
+  rules-test:
+    name: rules-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: {{NODE_VERSION}}
+          cache: {{PKG_MANAGER}}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Cache Firebase emulators
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/firebase/emulators
+          key: firebase-emulators-${{ runner.os }}
+      - run: {{INSTALL_CMD}}
+      - name: Run rules tests against emulator
+        run: {{PKG_MANAGER}} run emulators:exec
